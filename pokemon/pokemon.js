@@ -58,13 +58,17 @@ $(document).ready(function() {
   async function getPokemon() {
     let pokemonArr = [];
     let pokemons = await $.get('https://pokeapi.co/api/v2/pokemon/');
+    let pokemonImageArr = [];
+    let i_count = 0;
 
     for (let i = 0; i < 3; i++) {
       let randomPokemon = await $.get(
         pokemons.results[Math.floor(Math.random() * 948)].url
       );
       pokemonArr.push(await $.get(randomPokemon.species.url));
+      pokemonImageArr.push(randomPokemon.sprites.front_default);
     }
+    console.log(pokemonImageArr);
     Promise.all(pokemonArr).then(resp => {
       resp.forEach(resp => {
         for (let j = 0; j < resp.flavor_text_entries.length; j++) {
@@ -73,10 +77,31 @@ $(document).ready(function() {
               resp.name + ':\n',
               resp.flavor_text_entries[j].flavor_text
             );
+            createHTML(
+              resp.name,
+              pokemonImageArr[i_count],
+              resp.flavor_text_entries[j].flavor_text
+            );
+            i_count++;
+            console.log(i_count);
             return;
           }
         }
       });
     });
+  }
+
+  function createHTML(name, image, desc) {
+    let template = `
+    <div class="card" style="width: 16rem;">
+    <img class="card-img-top" src="${image}" alt="Card image cap">
+    <div class="card-body">
+      <h5 class="card-title">${name}</h5>
+      <p class="card-text">${desc}</p>
+    </div>
+    </div>
+    </div>`;
+
+    $('.card-group').append(template);
   }
 });
